@@ -1,3 +1,11 @@
+/Assets/CFD_Code/output
+/Assets/CFD_Code/debug
+/Assets/CFD_Code/*.exe
+/Assets/CFD_Code/*.out
+/Assets/CFD_Code/*.mod
+/Assets/CFD_Code/*.fort
+
+
 # This .gitignore file should be placed at the root of your Unity project directory
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore

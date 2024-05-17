@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3aada32c7dec7a4bb447954e0c12791, type: 3}
+  m_Name: Input
+  m_EditorClassIdentifier: 
+  n: {x: 51, y: 51}
+  lx: 1
+  ly: 1
+  tf: 10
+  frame: 10
+  re: 100
+  density: 1
+  cfl: 1
+  fo: 0.1
+  characteristicLength: 1
+  characteristicSpeed: 1
+  scheme: CD4
+  custom: 0
+  uSides:
+  - 0
+  - 0
+  - 0
+  - 1
+  vSides:
+  - 0
+  - 0
+  - 0
+  - 0
+  uIni: 0
+  vIni: 0
