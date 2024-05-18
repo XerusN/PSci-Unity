@@ -6,14 +6,14 @@ using UnityEngine;
 public class MainManager : MonoBehaviour
 {
 
-    public string cfdCodePath = Application.dataPath + "/CFD_Code";
+    public string cfdCodePath;
 
 
 
     // Start is called before the first frame update
     void Start()
     {
-
+        
     }
 
     // Update is called once per frame

@@ -14,7 +14,7 @@ public class CreateInput : MonoBehaviour
     void Start()
     {
         mainManager = GameObject.Find("Main Manager").GetComponent<MainManager>();
-        WriteInputFile();
+        //WriteInputFile();
     }
 
     // Update is called once per frame
