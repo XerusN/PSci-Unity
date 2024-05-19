@@ -15,8 +15,8 @@ public class Plot : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-
         mesh = new Mesh();
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         vertices = new Vector3[meshResolution.x * meshResolution.y];
         triangles = new int[(meshResolution.x - 1) * (meshResolution.y - 1) * 2 * 3];
         this.GetComponent<MeshFilter>().mesh = this.mesh;
@@ -31,6 +31,7 @@ public class Plot : MonoBehaviour
 
     public void UpdateMeshPlot(Data data, double[,] plotedValue, double min, double max)
     {
+
         float dx = (float)data.xMax / ((float)meshResolution.x - 1);
         float dy = (float)data.yMax / ((float)meshResolution.y - 1);
 

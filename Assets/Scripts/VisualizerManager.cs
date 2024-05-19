@@ -14,6 +14,8 @@ public class VisualizerManager : MonoBehaviour
         data = this.gameObject.GetComponent<Data>();
         plot = this.gameObject.GetComponent<Plot>();
         StartCoroutine(RunAnimatedPlot(0, data.u, -1f, 1f));
+        //UpdatePlot(data, 432, data.u, -1f, 1f);
+        
     }
 
     // Update is called once per frame
