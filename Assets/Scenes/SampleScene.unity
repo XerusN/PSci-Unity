@@ -290,7 +290,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9db7c4af253b3540b58b92f40e164cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meshResolution: {x: 501, y: 501}
+  meshResolution: {x: 51, y: 51}
   gradient:
     serializedVersion: 2
     key0: {r: 1, g: 0.25157225, b: 0.25157225, a: 1}
@@ -321,6 +321,7 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
+  computeShader: {fileID: 7200000, guid: ddde7e15451ce1545b3092f7f68528f6, type: 3}
 --- !u!23 &933573037
 MeshRenderer:
   m_ObjectHideFlags: 0

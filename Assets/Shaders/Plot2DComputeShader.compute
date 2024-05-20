@@ -1,0 +1,96 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+
+int meshResolutionX;
+int meshResolutionY;
+int dataMeshSizeX;
+int dataMeshSizeY;
+float dataLengthX;
+float dataLengthY;
+float dataMax;
+float dataMin;
+
+RWStructuredBuffer<float3> vertices;
+RWStructuredBuffer<double> x;
+RWStructuredBuffer<double> y;
+RWStructuredBuffer<double> values;
+RWStructuredBuffer<float> colors;
+//RWStructuredBuffer<int> triangles;
+
+[numthreads(8, 8, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    
+    if (id.x >= meshResolutionX | id.y >= meshResolutionY)
+        return;
+    
+    int i = id.x + id.y * meshResolutionX;
+    
+    float3 vertex = vertices[i];
+    float color = colors[i];
+    
+    float dx = ((float) dataLengthX) / ((float) meshResolutionX - 1);
+    float dy = ((float) dataLengthY) / ((float) meshResolutionY - 1);
+    
+    vertex = float3(id.x * dx, id.y * dy, 0);
+    
+    ////Triangles are computed outside of the compute shader since they only require to be calculated when the mesh changes
+    //if (id.x < meshResolutionX & id.y < meshResolutionY)
+    //{
+    //    triangles[(id.x + id.y * meshResolutionX) * 6] = id.x + 1 + id.y * meshResolutionX;
+    //    triangles[(id.x + id.y * meshResolutionX) * 6 + 1] = id.x + id.y * meshResolutionX;
+    //    triangles[(id.x + id.y * meshResolutionX) * 6 + 2] = id.x + (id.y + 1) * meshResolutionX;
+        
+    //    triangles[(id.x + id.y * meshResolutionX) * 6 + 3] = id.x + 1 + id.y * meshResolutionX;
+    //    triangles[(id.x + id.y * meshResolutionX) * 6 + 4] = id.x + (id.y + 1) * meshResolutionX;
+    //    triangles[(id.x + id.y * meshResolutionX) * 6 + 5] = id.x + 1 + (id.y + 1) * meshResolutionX;
+    //}
+    
+    int k = 0;
+    int l = 0;
+    
+    while (k + 1 < dataMeshSizeX)
+    {
+        if ((x[k] <= vertex.x) & (x[k + 1] >= vertex.x))
+        {
+            break;
+        }
+        k++;
+    }
+    while (l + 1 < dataMeshSizeX)
+    {
+        if ((y[l * dataMeshSizeX] <= vertex.y) & (y[(l + 1)*dataMeshSizeX] >= vertex.y))
+        {
+            break;
+        }
+        l++;
+    }
+    
+    double t = 0;
+    if ((x[k + 1 + l * dataMeshSizeX] - x[k + l * dataMeshSizeX]) > 0)
+    {
+        t = (vertex.x - x[k + l * dataMeshSizeX]) / (x[k + 1 + l * dataMeshSizeX] - x[k + l * dataMeshSizeX]);
+    }
+    
+    double color1 = t * (values[k + 1 + l * dataMeshSizeX] - values[k + l * dataMeshSizeX]) + values[k + l * dataMeshSizeX];
+    double color2 = t * (values[k + 1 + (l + 1) * dataMeshSizeX] - values[k + (l + 1) * dataMeshSizeX]) + values[k + (l + 1) * dataMeshSizeX];
+    
+    if ((y[k + (l + 1) * dataMeshSizeX] - y[k + l * dataMeshSizeX]) > 0)
+    {
+        t = (vertex.y - y[k + l * dataMeshSizeX]) / (y[k + (l + 1) * dataMeshSizeX] - y[k + l * dataMeshSizeX]);
+    } else
+    {
+        t = 0;
+    }
+    
+    color = (float) (t * (color2 - color1) + color1);
+    
+    vertex.z = -color;
+    
+    vertices[i] = vertex;
+    colors[i] = color;
+    
+}

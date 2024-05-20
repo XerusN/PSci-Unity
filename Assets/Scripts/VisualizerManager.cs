@@ -30,7 +30,7 @@ public class VisualizerManager : MonoBehaviour
         {
             UpdatePlot(data, i, plotedValue, min, max);
             Debug.Log(i);
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.01f);
         }
         Debug.Log("Fini!");
     }
@@ -39,7 +39,7 @@ public class VisualizerManager : MonoBehaviour
     {
         data.ReadDataTechplot(iteration);
 
-        plot.UpdateMeshPlot(data, data.u, data.uMax, data.uMin);
+        plot.Update2DMeshPlotShader(data, data.u, data.uMax, data.uMin);
 
     }
 }
