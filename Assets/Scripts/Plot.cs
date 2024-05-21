@@ -21,15 +21,16 @@ public class Plot : MonoBehaviour
     ComputeBuffer valueBuffer;
     //ComputeBuffer triangleBuffer;
 
+    double[] xFlat;
+    double[] yFlat;
+    double[] valueFlat;
+
     // Start is called before the first frame update
     void Awake()
     {
         mesh = new Mesh();
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-        vertices = new Vector3[meshResolution.x * meshResolution.y];
-        triangles = new int[(meshResolution.x - 1) * (meshResolution.y - 1) * 2 * 3];
-        colors = new Color[vertices.Length];
-        colorsFloat = new float[vertices.Length];
+        
         this.GetComponent<MeshFilter>().mesh = this.mesh;
     }
 
@@ -130,40 +131,54 @@ public class Plot : MonoBehaviour
 
     public void Update2DMeshPlotShader(Data data, double[,] plotedValue, double min, double max)
     {
-        double[] xFlat = new double[data.x.Length];
-        double[] yFlat = new double[data.x.Length];
-        double[] uFlat = new double[data.x.Length];
+        if (vertexBuffer == null)
+        {
+            AllocateBuffer(data);
+            Debug.Log("Allocated mesh");
+        }
+
+        if ((data.n.x*data.n.y != valueFlat.Length) | meshResolution.x*meshResolution.y != vertices.Length)
+        {
+            ReleaseBuffer();
+            AllocateBuffer(data);
+            Debug.Log("Resized mesh");
+        }
+
         for (int i = 0; i < data.n.x; i++)
         {
             for (int j = 0; j < data.n.y; j++)
             {
                 xFlat[i + data.n.x * j] = data.x[i, j];
                 yFlat[i + data.n.x * j] = data.y[i, j];
-                uFlat[i + data.n.x * j] = data.u[i, j];
+                valueFlat[i + data.n.x * j] = plotedValue[i, j];
             }
         }
 
-        vertexBuffer = new ComputeBuffer(vertices.Length, sizeof(float)*3);
+        for (int i = 0; i < data.n.x; i++)
+        {
+            for (int j = 0; j < data.n.y; j++)
+            {
+                xFlat[i + data.n.x * j] = data.x[i, j];
+                yFlat[i + data.n.x * j] = data.y[i, j];
+                valueFlat[i + data.n.x * j] = data.u[i, j];
+            }
+        }
+
         vertexBuffer.SetData(vertices);
         computeShader.SetBuffer(0, "vertices", vertexBuffer);
 
-        colorBuffer = new ComputeBuffer(colorsFloat.Length, sizeof(float));
         colorBuffer.SetData(colorsFloat);
         computeShader.SetBuffer(0, "colors", colorBuffer);
 
-        xBuffer = new ComputeBuffer(xFlat.Length, sizeof(double));
         xBuffer.SetData(xFlat);
         computeShader.SetBuffer(0, "x", xBuffer);
 
-        yBuffer = new ComputeBuffer(yFlat.Length, sizeof(double));
         yBuffer.SetData(yFlat);
         computeShader.SetBuffer(0, "y", yBuffer);
 
-        valueBuffer = new ComputeBuffer(uFlat.Length, sizeof(double));
-        valueBuffer.SetData(uFlat);
+        valueBuffer.SetData(valueFlat);
         computeShader.SetBuffer(0, "values", valueBuffer);
 
-        //triangleBuffer = new ComputeBuffer(triangles.Length, sizeof(int));
         //triangleBuffer.SetData(triangles);
         //computeShader.SetBuffer(0, "triangles", triangleBuffer);
 
@@ -173,8 +188,8 @@ public class Plot : MonoBehaviour
         computeShader.SetInt("dataMeshSizeY", data.n.y);
         computeShader.SetFloat("dataLengthX", (float) data.xMax);
         computeShader.SetFloat("dataLengthY", (float) data.yMax);
-        computeShader.SetFloat("valueMin", (float) data.uMin);
-        computeShader.SetFloat("valueMax", (float) data.uMax);
+        computeShader.SetFloat("valueMin", (float) min);
+        computeShader.SetFloat("valueMax", (float) max);
 
         computeShader.Dispatch(0, meshResolution.x / 8 + 1, meshResolution.y / 8 + 1, 1);
 
@@ -182,12 +197,26 @@ public class Plot : MonoBehaviour
         colorBuffer.GetData(colorsFloat);
         //triangleBuffer.GetData(triangles);
 
-        vertexBuffer.Release();
-        colorBuffer.Release();
-        xBuffer.Release();
-        yBuffer.Release();
-        valueBuffer.Release();
-        //triangleBuffer.Release();
+        for (int i = 0; i < colors.Length; i++)
+        {
+            colors[i] = gradient.Evaluate(Mathf.InverseLerp((float)min, (float)max, colorsFloat[i]));
+        }
+
+        mesh.Clear();
+        //ColorMesh(data, plotedValue, min, max);
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.colors = colors;
+
+        mesh.RecalculateNormals();
+    }
+
+    void AllocateBuffer(Data data)
+    {
+        vertices = new Vector3[meshResolution.x * meshResolution.y];
+        triangles = new int[(meshResolution.x - 1) * (meshResolution.y - 1) * 2 * 3];
+        colors = new Color[vertices.Length];
+        colorsFloat = new float[vertices.Length];
 
         int triIndex = 0;
         for (int i = 0; i < meshResolution.x - 1; i++)
@@ -205,61 +234,37 @@ public class Plot : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < colors.Length; i++)
-        {
-            if (colorsFloat[i] > 2 | colorsFloat[i] < 0)
-            {
-                //Debug.Log((i % meshResolution.x).ToString() + " " + (i / meshResolution.x).ToString() + " " + colorsFloat[i].ToString());
-            }
-            colors[i] = gradient.Evaluate(Mathf.InverseLerp((float)min, (float)max, colorsFloat[i]));
-        }
+        xFlat = new double[data.n.x * data.n.y];
+        yFlat = new double[data.n.x * data.n.y];
+        valueFlat = new double[data.n.x * data.n.y];
 
-        //for (int i = 0; i < triangles.Length; i++)
-        //{
-        //    if (triangles[i] == 0)
-        //    {
-        //        Debug.Log(i.ToString() + " " + triangles[i].ToString());
-        //    }
-        //}
+        vertexBuffer = new ComputeBuffer(vertices.Length, sizeof(float) * 3);
 
-        for (int i = 0; i < vertices.Length; i++)
-        {
-            if (vertices[i].z == 0f & vertices[i].y == 0f & vertices[i].x == 0f)
-            {
-                Debug.Log((i % meshResolution.x).ToString() + " " + (i / meshResolution.x).ToString() + " " + vertices[i].ToString());
-            }
-        }
+        colorBuffer = new ComputeBuffer(colorsFloat.Length, sizeof(float));
 
-        int[] count = new int[vertices.Length];
-        for (int i = 0; i < triangles.Length; i++)
-        {
-            count[triangles[i]] += 1;
-        }
+        xBuffer = new ComputeBuffer(xFlat.Length, sizeof(double));
+        
+        yBuffer = new ComputeBuffer(yFlat.Length, sizeof(double));
 
-        for (int i = 0; i < count.Length; i++)
-        {
-            if (count[i] != 6)
-            {
-                if (!((((i % meshResolution.x)%(meshResolution.x - 1) == 0) | ((i / meshResolution.x)%(meshResolution.y - 1) == 0)) & (count[i] == 3)))
-                {
-                    Debug.Log((i % meshResolution.x).ToString() + " " + (i / meshResolution.x).ToString() + " " + count[i].ToString());
-                }
-            }
-        }
+        valueBuffer = new ComputeBuffer(valueFlat.Length, sizeof(double));
 
-        Debug.Log((triangles.Length - 2).ToString() + " " + triangles[triangles.Length - 2].ToString() + " " + vertices[triangles[triangles.Length - 2]].ToString());
-        Debug.Log("Dernier indice triangle " + (triangles.Length - 1).ToString() + " " + triangles[triangles.Length - 1].ToString() + " " + vertices[triangles[triangles.Length - 1]].ToString());
-        Debug.Log((vertices.Length - 1).ToString() + " " + vertices[vertices.Length - 1].ToString());
-
-        mesh.Clear();
-        //ColorMesh(data, plotedValue, min, max);
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.colors = colors;
-
-        mesh.RecalculateNormals();
+        //triangleBuffer = new ComputeBuffer(triangles.Length, sizeof(int));
     }
 
+    void ReleaseBuffer()
+    {
+        vertexBuffer.Release();
+        colorBuffer.Release();
+        xBuffer.Release();
+        yBuffer.Release();
+        valueBuffer.Release();
+        //triangleBuffer.Release();
+    }
+
+    private void OnDestroy()
+    {
+        ReleaseBuffer();
+    }
 
 
 

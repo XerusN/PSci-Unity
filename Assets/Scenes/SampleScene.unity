@@ -290,7 +290,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9db7c4af253b3540b58b92f40e164cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meshResolution: {x: 51, y: 51}
+  meshResolution: {x: 201, y: 201}
   gradient:
     serializedVersion: 2
     key0: {r: 1, g: 0.25157225, b: 0.25157225, a: 1}

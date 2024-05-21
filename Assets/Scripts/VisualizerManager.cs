@@ -13,9 +13,8 @@ public class VisualizerManager : MonoBehaviour
     {
         data = this.gameObject.GetComponent<Data>();
         plot = this.gameObject.GetComponent<Plot>();
-        StartCoroutine(RunAnimatedPlot(0, data.u, -1f, 1f));
-        //UpdatePlot(data, 432, data.u, -1f, 1f);
-        
+        StartCoroutine(RunAnimatedPlot(0, 1, -1f, 1f));
+        //UpdatePlot(data, 432, 1, -1f, 1f);
     }
 
     // Update is called once per frame
@@ -24,7 +23,7 @@ public class VisualizerManager : MonoBehaviour
 
     }
 
-    IEnumerator RunAnimatedPlot(int iterationIni, double[,] plotedValue, double min, double max)
+    IEnumerator RunAnimatedPlot(int iterationIni, int plotedValue, double min, double max)
     {
         for (int i = iterationIni; i < 432; i++)
         {
@@ -35,11 +34,24 @@ public class VisualizerManager : MonoBehaviour
         Debug.Log("Fini!");
     }
 
-    public void UpdatePlot(Data data, int iteration, double[,] plotedValue, double min, double max)
+    public void UpdatePlot(Data data, int iteration, int plotedValue, double min, double max)
     {
         data.ReadDataTechplot(iteration);
 
-        plot.Update2DMeshPlotShader(data, data.u, data.uMax, data.uMin);
-
+        switch (plotedValue)
+        {
+            case > 0 when plotedValue == 1:
+                plot.Update2DMeshPlotShader(data, data.u, min, max);
+                break;
+            case > 0 when plotedValue == 2:
+                plot.Update2DMeshPlotShader(data, data.v, min, max);
+                break;
+            case > 0 when plotedValue == 2:
+                plot.Update2DMeshPlotShader(data, data.mag, min, max);
+                break;
+            case > 0 when plotedValue == 3:
+                plot.Update2DMeshPlotShader(data, data.p, min, max);
+                break;
+        }
     }
 }
