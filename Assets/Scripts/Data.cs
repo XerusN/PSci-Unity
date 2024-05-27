@@ -52,9 +52,9 @@ public class Data : MonoBehaviour
         mainManager = GameObject.Find("Main Manager").GetComponent<MainManager>();
     }
 
-    public void InitData(int size)
+    public void InitData()
     {
-        data = new DataValue[size];
+        data = new DataValue[Directory.GetFiles(mainManager.cfdCodePath + "/output/").Length];
     }
 
     public void ReadDataTechplot(int iteration)

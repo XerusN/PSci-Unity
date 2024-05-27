@@ -4,12 +4,15 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Diagnostics;
+using System.Threading;
 
 
 
 public class RunCode : MonoBehaviour
 {
     MainManager mainManager;
+
+    string oldDirectory;
 
     void Awake()
     {
@@ -23,72 +26,88 @@ public class RunCode : MonoBehaviour
     }
     
     Process process = null;
-    StreamWriter messageStream;
-    
+    private Thread outputThread;
+
+
     public void StartProcess()
     {
-        string oldDirectory = System.IO.Directory.GetCurrentDirectory();
 
-        System.IO.Directory.SetCurrentDirectory(mainManager.cfdCodePath);
 
         try
         {
-            
+            oldDirectory = System.IO.Directory.GetCurrentDirectory();
+
+            System.IO.Directory.SetCurrentDirectory(mainManager.cfdCodePath);
 
             process = new Process();
             process.EnableRaisingEvents = false;
             //process.StartInfo.FileName = Application.dataPath + "/home/xaviern/Documents/VSCode/Test";
+#if Windows
             process.StartInfo.FileName = "a.exe";
+#elif UNITY_EDITOR_WIN
+            process.StartInfo.FileName = "a.exe";
+#elif Linux
+            process.StartInfo.FileName = "a.out";
+#elif UNITY_EDITOR_LINUX
+            process.StartInfo.FileName = "a.out";
+#endif
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardInput = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.CreateNoWindow = true;
-            process.OutputDataReceived += new DataReceivedEventHandler( DataReceived );
-            process.ErrorDataReceived += new DataReceivedEventHandler( ErrorReceived );
             process.Start();
-            //process.BeginOutputReadLine();
-            //messageStream = process.StandardInput;
-            using (StreamReader reader = process.StandardOutput)
-            using (StreamReader error = process.StandardError)
-            {
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    UnityEngine.Debug.Log(line);
-                }
-                while ((line = error.ReadLine()) != null)
-                {
-                    UnityEngine.Debug.Log("Error : " + line.ToString());
-                }
-            }
-            process.WaitForExit();
-            //UnityEngine.Debug.Log(messageStream.ToString());
-            UnityEngine.Debug.Log( "Successfully launched app" );
+
+            System.IO.Directory.SetCurrentDirectory(oldDirectory);
+
+
+            outputThread = new Thread(ReadOutput);
+            outputThread.Start();
+
+
+            ////process.BeginOutputReadLine();
+            ////messageStream = process.StandardInput;
+            //using (StreamReader reader = process.StandardOutput)
+            //using (StreamReader error = process.StandardError)
+            //{
+            //    string line;
+            //    while ((line = reader.ReadLine()) != null)
+            //    {
+            //        UnityEngine.Debug.Log(line);
+            //    }
+            //    while ((line = error.ReadLine()) != null)
+            //    {
+            //        UnityEngine.Debug.Log("Error : " + line.ToString());
+            //    }
+            //}
+            //process.WaitForExit();
+            ////UnityEngine.Debug.Log(messageStream.ToString());
         }
-        catch( Exception e )
+        catch ( Exception e )
         {
             UnityEngine.Debug.LogError( "Unable to launch app: " + e.Message );
         }
 
-        System.IO.Directory.SetCurrentDirectory(oldDirectory);
     }
 
-
-    void DataReceived( object sender, DataReceivedEventArgs eventArgs )
+    void ReadOutput()
     {
-        // Handle it
-    }
+        StreamReader reader = process.StandardOutput;
+        while(!reader.EndOfStream && !process.HasExited)
+        {
+            UnityEngine.Debug.Log(reader.ReadLine());
+        }
 
-    void ErrorReceived( object sender, DataReceivedEventArgs eventArgs )
-    {
-        UnityEngine.Debug.LogError( eventArgs.Data );
+        StreamReader errorReader = process.StandardError;
+        while (!errorReader.EndOfStream && !process.HasExited)
+        {
+            UnityEngine.Debug.Log(errorReader.ReadLine());
+        }
     }
-
 
     void OnApplicationQuit()
     {
-        if( process != null & !process.HasExited )
+        if( process != null && !process.HasExited )
         {
             process.Kill();
         }
