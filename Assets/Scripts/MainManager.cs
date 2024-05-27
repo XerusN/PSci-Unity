@@ -19,6 +19,6 @@ public class MainManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

@@ -13,7 +13,7 @@ public class VisualizerManager : MonoBehaviour
     {
         data = this.gameObject.GetComponent<Data>();
         plot = this.gameObject.GetComponent<Plot>();
-        StartCoroutine(RunAnimatedPlot(0, 1, -1f, 1f));
+        //StartCoroutine(RunAnimatedPlot(0, 1, -1f, 1f));
         //UpdatePlot(data, 432, 1, -1f, 1f);
     }
 
@@ -23,8 +23,14 @@ public class VisualizerManager : MonoBehaviour
 
     }
 
-    IEnumerator RunAnimatedPlot(int iterationIni, int plotedValue, double min, double max)
+    IEnumerator RunAnimatedPlot(int iterationIni, int plotedValue, float min, float max)
     {
+        data.InitData(432);
+        for (int i  = 0; i < data.data.Length; i++)
+        {
+            data.ReadDataTechplot(i);
+        }
+
         for (int i = iterationIni; i < 432; i++)
         {
             UpdatePlot(data, i, plotedValue, min, max);
@@ -34,23 +40,22 @@ public class VisualizerManager : MonoBehaviour
         Debug.Log("Fini!");
     }
 
-    public void UpdatePlot(Data data, int iteration, int plotedValue, double min, double max)
+    public void UpdatePlot(Data data, int iteration, int plotedValue, float min, float max)
     {
-        data.ReadDataTechplot(iteration);
 
         switch (plotedValue)
         {
             case > 0 when plotedValue == 1:
-                plot.Update2DMeshPlotShader(data, data.u, min, max);
+                plot.Update2DMeshPlotShader(data, iteration, data.data[iteration].u, min, max);
                 break;
             case > 0 when plotedValue == 2:
-                plot.Update2DMeshPlotShader(data, data.v, min, max);
+                plot.Update2DMeshPlotShader(data, iteration, data.data[iteration].v, min, max);
                 break;
             case > 0 when plotedValue == 2:
-                plot.Update2DMeshPlotShader(data, data.mag, min, max);
+                plot.Update2DMeshPlotShader(data, iteration, data.data[iteration].mag, min, max);
                 break;
             case > 0 when plotedValue == 3:
-                plot.Update2DMeshPlotShader(data, data.p, min, max);
+                plot.Update2DMeshPlotShader(data, iteration, data.data[iteration].p, min, max);
                 break;
         }
     }

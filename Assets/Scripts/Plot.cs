@@ -21,9 +21,9 @@ public class Plot : MonoBehaviour
     ComputeBuffer valueBuffer;
     //ComputeBuffer triangleBuffer;
 
-    double[] xFlat;
-    double[] yFlat;
-    double[] valueFlat;
+    float[] xFlat;
+    float[] yFlat;
+    float[] valueFlat;
 
     // Start is called before the first frame update
     void Awake()
@@ -41,11 +41,11 @@ public class Plot : MonoBehaviour
     }
 
 
-    public void Update2DMeshPlot(Data data, double[,] plotedValue, double min, double max)
+    public void Update2DMeshPlot(Data data, int iteration, float[,] plotedValue, float min, float max)
     {
 
-        float dx = (float)data.xMax / ((float)meshResolution.x - 1);
-        float dy = (float)data.yMax / ((float)meshResolution.y - 1);
+        float dx = (float)data.data[iteration].xMax / ((float)meshResolution.x - 1);
+        float dy = (float)data.data[iteration].yMax / ((float)meshResolution.y - 1);
 
         for (int i = 0; i < meshResolution.x; i++)
         {
@@ -72,7 +72,7 @@ public class Plot : MonoBehaviour
         }
 
         mesh.Clear();
-        ColorMesh(data, plotedValue, min, max);
+        ColorMesh(data, iteration, plotedValue, min, max);
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.colors = colors;
@@ -81,7 +81,7 @@ public class Plot : MonoBehaviour
 
     }
 
-    private void ColorMesh(Data data, double[,] plotedValue, double min, double max)
+    private void ColorMesh(Data data, int iteration, float[,] plotedValue, float min, float max)
     {
         int k = 0;
         int l = 0;
@@ -91,33 +91,33 @@ public class Plot : MonoBehaviour
             {
                 k = 0;
                 l = 0;
-                while ((k + 1 < data.n.x))
+                while ((k + 1 < data.data[iteration].n.x))
                 {
-                    if ((data.x[k, 0] <= vertices[j * meshResolution.x + i].x) & (data.x[k + 1, 0] >= vertices[j * meshResolution.x + i].x)) { break; }
+                    if ((data.data[iteration].x[k, 0] <= vertices[j * meshResolution.x + i].x) & (data.data[iteration].x[k + 1, 0] >= vertices[j * meshResolution.x + i].x)) { break; }
                     k++;
                 }
-                while ((l + 1 < data.n.y))
+                while ((l + 1 < data.data[iteration].n.y))
                 {
-                    if ((data.y[0, l] <= vertices[j * meshResolution.x + i].y) & (data.y[0, l + 1] >= vertices[j * meshResolution.x + i].y)) { break; }
+                    if ((data.data[iteration].y[0, l] <= vertices[j * meshResolution.x + i].y) & (data.data[iteration].y[0, l + 1] >= vertices[j * meshResolution.x + i].y)) { break; }
                     l++;
                 }
-                double t = 0d;
-                if (Mathd.Abs(data.x[k + 1, l] - data.x[k, l]) > 0)
+                float t = 0f;
+                if (Mathd.Abs(data.data[iteration].x[k + 1, l] - data.data[iteration].x[k, l]) > 0)
                 {
-                    t = ((double)vertices[j * meshResolution.x + i].x - data.x[k, l]) / (data.x[k + 1, l] - data.x[k, l]);
+                    t = ((float)vertices[j * meshResolution.x + i].x - data.data[iteration].x[k, l]) / (data.data[iteration].x[k + 1, l] - data.data[iteration].x[k, l]);
                 }
 
                 float value1 = (float)Mathd.Lerp(plotedValue[k, l], plotedValue[k + 1, l], t);
 
                 float value2 = (float)Mathd.Lerp(plotedValue[k, l + 1], plotedValue[k + 1, l + 1], t);
 
-                if (Mathd.Abs(data.y[k, l + 1] - data.y[k, l]) > 0)
+                if (Mathd.Abs(data.data[iteration].y[k, l + 1] - data.data[iteration].y[k, l]) > 0)
                 {
-                    t = ((double)vertices[j * meshResolution.x + i].y - data.y[k, l]) / (data.y[k, l + 1] - data.y[k, l]);
+                    t = ((float)vertices[j * meshResolution.x + i].y - data.data[iteration].y[k, l]) / (data.data[iteration].y[k, l + 1] - data.data[iteration].y[k, l]);
                 }
                 else
                 {
-                    t = 0d;
+                    t = 0f;
                 }
 
                 float value = (float)Mathd.Lerp(value1, value2, t);
@@ -129,38 +129,38 @@ public class Plot : MonoBehaviour
         }
     }
 
-    public void Update2DMeshPlotShader(Data data, double[,] plotedValue, double min, double max)
+    public void Update2DMeshPlotShader(Data data, int iteration, float[,] plotedValue, float min, float max)
     {
         if (vertexBuffer == null)
         {
-            AllocateBuffer(data);
+            AllocateBuffer(data, iteration);
             Debug.Log("Allocated mesh");
         }
 
-        if ((data.n.x*data.n.y != valueFlat.Length) | meshResolution.x*meshResolution.y != vertices.Length)
+        if ((data.data[iteration].n.x*data.data[iteration].n.y != valueFlat.Length) | meshResolution.x*meshResolution.y != vertices.Length)
         {
             ReleaseBuffer();
-            AllocateBuffer(data);
+            AllocateBuffer(data, iteration);
             Debug.Log("Resized mesh");
         }
 
-        for (int i = 0; i < data.n.x; i++)
+        for (int i = 0; i < data.data[iteration].n.x; i++)
         {
-            for (int j = 0; j < data.n.y; j++)
+            for (int j = 0; j < data.data[iteration].n.y; j++)
             {
-                xFlat[i + data.n.x * j] = data.x[i, j];
-                yFlat[i + data.n.x * j] = data.y[i, j];
-                valueFlat[i + data.n.x * j] = plotedValue[i, j];
+                xFlat[i + data.data[iteration].n.x * j] = data.data[iteration].x[i, j];
+                yFlat[i + data.data[iteration].n.x * j] = data.data[iteration].y[i, j];
+                valueFlat[i + data.data[iteration].n.x * j] = plotedValue[i, j];
             }
         }
 
-        for (int i = 0; i < data.n.x; i++)
+        for (int i = 0; i < data.data[iteration].n.x; i++)
         {
-            for (int j = 0; j < data.n.y; j++)
+            for (int j = 0; j < data.data[iteration].n.y; j++)
             {
-                xFlat[i + data.n.x * j] = data.x[i, j];
-                yFlat[i + data.n.x * j] = data.y[i, j];
-                valueFlat[i + data.n.x * j] = data.u[i, j];
+                xFlat[i + data.data[iteration].n.x * j] = data.data[iteration].x[i, j];
+                yFlat[i + data.data[iteration].n.x * j] = data.data[iteration].y[i, j];
+                valueFlat[i + data.data[iteration].n.x * j] = data.data[iteration].u[i, j];
             }
         }
 
@@ -184,10 +184,10 @@ public class Plot : MonoBehaviour
 
         computeShader.SetInt("meshResolutionX", meshResolution.x);
         computeShader.SetInt("meshResolutionY", meshResolution.y);
-        computeShader.SetInt("dataMeshSizeX", data.n.x);
-        computeShader.SetInt("dataMeshSizeY", data.n.y);
-        computeShader.SetFloat("dataLengthX", (float) data.xMax);
-        computeShader.SetFloat("dataLengthY", (float) data.yMax);
+        computeShader.SetInt("dataMeshSizeX", data.data[iteration].n.x);
+        computeShader.SetInt("dataMeshSizeY", data.data[iteration].n.y);
+        computeShader.SetFloat("dataLengthX", (float) data.data[iteration].xMax);
+        computeShader.SetFloat("dataLengthY", (float) data.data[iteration].yMax);
         computeShader.SetFloat("valueMin", (float) min);
         computeShader.SetFloat("valueMax", (float) max);
 
@@ -211,7 +211,7 @@ public class Plot : MonoBehaviour
         mesh.RecalculateNormals();
     }
 
-    void AllocateBuffer(Data data)
+    void AllocateBuffer(Data data, int iteration)
     {
         vertices = new Vector3[meshResolution.x * meshResolution.y];
         triangles = new int[(meshResolution.x - 1) * (meshResolution.y - 1) * 2 * 3];
@@ -234,19 +234,19 @@ public class Plot : MonoBehaviour
             }
         }
 
-        xFlat = new double[data.n.x * data.n.y];
-        yFlat = new double[data.n.x * data.n.y];
-        valueFlat = new double[data.n.x * data.n.y];
+        xFlat = new float[data.data[iteration].n.x * data.data[iteration].n.y];
+        yFlat = new float[data.data[iteration].n.x * data.data[iteration].n.y];
+        valueFlat = new float[data.data[iteration].n.x * data.data[iteration].n.y];
 
         vertexBuffer = new ComputeBuffer(vertices.Length, sizeof(float) * 3);
 
         colorBuffer = new ComputeBuffer(colorsFloat.Length, sizeof(float));
 
-        xBuffer = new ComputeBuffer(xFlat.Length, sizeof(double));
+        xBuffer = new ComputeBuffer(xFlat.Length, sizeof(float));
         
-        yBuffer = new ComputeBuffer(yFlat.Length, sizeof(double));
+        yBuffer = new ComputeBuffer(yFlat.Length, sizeof(float));
 
-        valueBuffer = new ComputeBuffer(valueFlat.Length, sizeof(double));
+        valueBuffer = new ComputeBuffer(valueFlat.Length, sizeof(float));
 
         //triangleBuffer = new ComputeBuffer(triangles.Length, sizeof(int));
     }
@@ -263,7 +263,10 @@ public class Plot : MonoBehaviour
 
     private void OnDestroy()
     {
-        ReleaseBuffer();
+        if (vertexBuffer != null)
+        {
+            ReleaseBuffer();
+        }
     }
 
 

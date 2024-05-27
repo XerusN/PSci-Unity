@@ -14,9 +14,9 @@ float dataMax;
 float dataMin;
 
 RWStructuredBuffer<float3> vertices;
-RWStructuredBuffer<double> x;
-RWStructuredBuffer<double> y;
-RWStructuredBuffer<double> values;
+RWStructuredBuffer<float> x;
+RWStructuredBuffer<float> y;
+RWStructuredBuffer<float> values;
 RWStructuredBuffer<float> colors;
 //RWStructuredBuffer<int> triangles;
 
@@ -69,14 +69,14 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         l++;
     }
     
-    double t = 0;
+    float t = 0;
     if ((x[k + 1 + l * dataMeshSizeX] - x[k + l * dataMeshSizeX]) > 0)
     {
         t = (vertex.x - x[k + l * dataMeshSizeX]) / (x[k + 1 + l * dataMeshSizeX] - x[k + l * dataMeshSizeX]);
     }
     
-    double color1 = t * (values[k + 1 + l * dataMeshSizeX] - values[k + l * dataMeshSizeX]) + values[k + l * dataMeshSizeX];
-    double color2 = t * (values[k + 1 + (l + 1) * dataMeshSizeX] - values[k + (l + 1) * dataMeshSizeX]) + values[k + (l + 1) * dataMeshSizeX];
+    float color1 = t * (values[k + 1 + l * dataMeshSizeX] - values[k + l * dataMeshSizeX]) + values[k + l * dataMeshSizeX];
+    float color2 = t * (values[k + 1 + (l + 1) * dataMeshSizeX] - values[k + (l + 1) * dataMeshSizeX]) + values[k + (l + 1) * dataMeshSizeX];
     
     if ((y[k + (l + 1) * dataMeshSizeX] - y[k + l * dataMeshSizeX]) > 0)
     {

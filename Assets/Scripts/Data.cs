@@ -10,30 +10,36 @@ public class Data : MonoBehaviour
 {
     public Input input;
 
-    public double time;
-    public Vector2Int n;
-    public double[,] x;
-    public double[,] y;
-    public double[,] u;
-    public double[,] v;
-    public double[,] mag;
-    public double[,] p;
+    public struct DataValue
+    {
+        public float time;
+        public Vector2Int n;
+        public float[,] x;
+        public float[,] y;
+        public float[,] u;
+        public float[,] v;
+        public float[,] mag;
+        public float[,] p;
 
-    public double xMax;
-    public double yMax;
+        public float xMax;
+        public float yMax;
 
-    public double uMin;
-    public double uMax;
+        public float uMin;
+        public float uMax;
 
-    public double vMin;
-    public double vMax;
+        public float vMin;
+        public float vMax;
 
-    public double magMin;
-    public double magMax;
+        public float magMin;
+        public float magMax;
 
-    public double pMin;
-    public double pMax;
+        public float pMin;
+        public float pMax;
+    }
 
+    public DataValue[] data;
+
+    MainManager mainManager;
 
     // Start is called before the first frame update
     void Start()
@@ -41,9 +47,18 @@ public class Data : MonoBehaviour
 
     }
 
+    private void Awake()
+    {
+        mainManager = GameObject.Find("Main Manager").GetComponent<MainManager>();
+    }
+
+    public void InitData(int size)
+    {
+        data = new DataValue[size];
+    }
+
     public void ReadDataTechplot(int iteration)
     {
-        MainManager mainManager = GameObject.Find("Main Manager").GetComponent<MainManager>();
         string fileName = mainManager.cfdCodePath + "/output/resTECPLOT_" + (iteration * input.frame).ToString().Trim() + ".dat";
         StreamReader reader = new StreamReader(fileName);
         string str = "";
@@ -51,94 +66,94 @@ public class Data : MonoBehaviour
         str = reader.ReadLine();
         str = reader.ReadLine();
         str = reader.ReadLine();
-        Double.TryParse(str[10..32], out time);
+        float.TryParse(str[10..32], out data[iteration].time);
         Int32.TryParse(str[44..48], out i);
-        n.x = i;
+        data[iteration].n.x = i;
         Int32.TryParse(str[52..56], out i);
-        n.y = i;
+        data[iteration].n.y = i;
 
-        x = new double[n.x + 2, n.y + 2];
-        y = new double[n.x + 2, n.y + 2];
-        u = new double[n.x + 2, n.y + 2];
-        v = new double[n.x + 2, n.y + 2];
-        mag = new double[n.x + 2, n.y + 2];
-        p = new double[n.x + 2, n.y + 2];
+        data[iteration].x = new float[data[iteration].n.x + 2, data[iteration].n.y + 2];
+        data[iteration].y = new float[data[iteration].n.x + 2, data[iteration].n.y + 2];
+        data[iteration].u = new float[data[iteration].n.x + 2, data[iteration].n.y + 2];
+        data[iteration].v = new float[data[iteration].n.x + 2, data[iteration].n.y + 2];
+        data[iteration].mag = new float[data[iteration].n.x + 2, data[iteration].n.y + 2];
+        data[iteration].p = new float[data[iteration].n.x + 2, data[iteration].n.y + 2];
 
-        for (i = 1; i < n.x+1; i++)
+        for (i = 1; i < data[iteration].n.x+1; i++)
         {
-            for (int j = 1; j < n.y+1; j++)
+            for (int j = 1; j < data[iteration].n.y+1; j++)
             {
                 str = reader.ReadLine();
-                Double.TryParse(str[0..20], out x[i,j]);
-                Double.TryParse(str[21..41], out y[i,j]);
-                Double.TryParse(str[42..62], out u[i, j]);
-                Double.TryParse(str[63..83], out v[i, j]);
-                Double.TryParse(str[84..104], out mag[i, j]);
-                Double.TryParse(str[105..125], out p[i, j]);
+                float.TryParse(str[0..20], out data[iteration].x[i,j]);
+                float.TryParse(str[21..41], out data[iteration].y[i,j]);
+                float.TryParse(str[42..62], out data[iteration].u[i, j]);
+                float.TryParse(str[63..83], out data[iteration].v[i, j]);
+                float.TryParse(str[84..104], out data[iteration].mag[i, j]);
+                float.TryParse(str[105..125], out data[iteration].p[i, j]);
             }
         }
 
 
-        for (int j = 0; j < n.y + 2; j++)
+        for (int j = 0; j < data[iteration].n.y + 2; j++)
         {
-            x[0, j] = x[1, j];
-            x[n.x+1, j] = x[n.x, j];
-            y[0, j] = y[1, j];
-            y[n.x + 1, j] = y[n.x, j];
-            u[0, j] = u[1, j];
-            u[n.x + 1, j] = u[n.x, j];
-            v[0, j] = v[1, j];
-            v[n.x + 1, j] = v[n.x, j];
-            mag[0, j] = mag[1, j];
-            mag[n.x + 1, j] = mag[n.x, j];
-            p[0, j] = p[1, j];
-            p[n.x + 1, j] = p[n.x, j];
+            data[iteration].x[0, j] = data[iteration].x[1, j];
+            data[iteration].x[data[iteration].n.x+1, j] = data[iteration].x[data[iteration].n.x, j];
+            data[iteration].y[0, j] = data[iteration].y[1, j];
+            data[iteration].y[data[iteration].n.x + 1, j] = data[iteration].y[data[iteration].n.x, j];
+            data[iteration].u[0, j] = data[iteration].u[1, j];
+            data[iteration].u[data[iteration].n.x + 1, j] = data[iteration].u[data[iteration].n.x, j];
+            data[iteration].v[0, j] = data[iteration].v[1, j];
+            data[iteration].v[data[iteration].n.x + 1, j] = data[iteration].v[data[iteration].n.x, j];
+            data[iteration].mag[0, j] = data[iteration].mag[1, j];
+            data[iteration].mag[data[iteration].n.x + 1, j] = data[iteration].mag[data[iteration].n.x, j];
+            data[iteration].p[0, j] = data[iteration].p[1, j];
+            data[iteration].p[data[iteration].n.x + 1, j] = data[iteration].p[data[iteration].n.x, j];
         }
-        for (i = 0; i < n.x + 2; i++)
+        for (i = 0; i < data[iteration].n.x + 2; i++)
         {
-            x[i, 0] = x[i, 1];
-            x[i, n.x + 1] = x[i, n.y];
-            y[i, 0] = y[i, 1];
-            y[i, n.x + 1] = y[i, n.y];
-            u[i, 0] = u[i, 1];
-            u[i, n.x + 1] = u[i, n.y];
-            v[i, 0] = v[i, 1];
-            v[i, n.x + 1] = v[i, n.y];
-            mag[i, 0] = mag[i, 1];
-            mag[i, n.x + 1] = mag[i, n.y];
-            p[i, 0] = p[i, 1];
-            p[i, n.x + 1] = p[i, n.y];
+            data[iteration].x[i, 0] = data[iteration].x[i, 1];
+            data[iteration].x[i, data[iteration].n.x + 1] = data[iteration].x[i, data[iteration].n.y];
+            data[iteration].y[i, 0] = data[iteration].y[i, 1];
+            data[iteration].y[i, data[iteration].n.x + 1] = data[iteration].y[i, data[iteration].n.y];
+            data[iteration].u[i, 0] = data[iteration].u[i, 1];
+            data[iteration].u[i, data[iteration].n.x + 1] = data[iteration].u[i, data[iteration].n.y];
+            data[iteration].v[i, 0] = data[iteration].v[i, 1];
+            data[iteration].v[i, data[iteration].n.x + 1] = data[iteration].v[i, data[iteration].n.y];
+            data[iteration].mag[i, 0] = data[iteration].mag[i, 1];
+            data[iteration].mag[i, data[iteration].n.x + 1] = data[iteration].mag[i, data[iteration].n.y];
+            data[iteration].p[i, 0] = data[iteration].p[i, 1];
+            data[iteration].p[i, data[iteration].n.x + 1] = data[iteration].p[i, data[iteration].n.y];
         }
 
-        xMax = 0f;
-        yMax = 0f;
+        data[iteration].xMax = 0f;
+        data[iteration].yMax = 0f;
 
-        uMax = 0f;
-        vMax = 0f;
-        magMax = 0f;
-        pMax = 0f;
+        data[iteration].uMax = 0f;
+        data[iteration].vMax = 0f;
+        data[iteration].magMax = 0f;
+        data[iteration].pMax = 0f;
 
-        uMin = 0f;
-        vMin = 0f;
-        magMin = 0f;
-        pMin = 0f;
+        data[iteration].uMin = 0f;
+        data[iteration].vMin = 0f;
+        data[iteration].magMin = 0f;
+        data[iteration].pMin = 0f;
 
-        for (i = 1; i < n.x+1; i++)
+        for (i = 1; i < data[iteration].n.x+1; i++)
         {
-            for (int j = 1; j < n.x + 1; j++)
+            for (int j = 1; j < data[iteration].n.y + 1; j++)
             {
-                if (x[i, j] > xMax) { xMax = x[i, j]; }
-                if (y[i, j] > yMax) { yMax = y[i, j]; }
+                if (data[iteration].x[i, j] > data[iteration].xMax) { data[iteration].xMax = data[iteration].x[i, j]; }
+                if (data[iteration].y[i, j] > data[iteration].yMax) { data[iteration].yMax = data[iteration].y[i, j]; }
 
-                if (u[i, j] > uMax) { uMax = u[i, j]; }
-                if (v[i, j] > vMax) { vMax = v[i, j]; }
-                if (mag[i, j] > magMax) { magMax = mag[i, j]; }
-                if (p[i, j] > pMax) { pMax = p[i, j]; }
+                if (data[iteration].u[i, j] > data[iteration].uMax) { data[iteration].uMax = data[iteration].u[i, j]; }
+                if (data[iteration].v[i, j] > data[iteration].vMax) { data[iteration].vMax = data[iteration].v[i, j]; }
+                if (data[iteration].mag[i, j] > data[iteration].magMax) { data[iteration].magMax = data[iteration].mag[i, j]; }
+                if (data[iteration].p[i, j] > data[iteration].pMax) { data[iteration].pMax = data[iteration].p[i, j]; }
 
-                if (u[i, j] < uMin) { uMin = u[i, j]; }
-                if (v[i, j] < vMin) { vMin = v[i, j]; }
-                if (mag[i, j] < magMin) { magMin = mag[i, j]; }
-                if (p[i, j] < pMin) { pMin = p[i, j]; }
+                if (data[iteration].u[i, j] < data[iteration].uMin) { data[iteration].uMin = data[iteration].u[i, j]; }
+                if (data[iteration].v[i, j] < data[iteration].vMin) { data[iteration].vMin = data[iteration].v[i, j]; }
+                if (data[iteration].mag[i, j] < data[iteration].magMin) { data[iteration].magMin = data[iteration].mag[i, j]; }
+                if (data[iteration].p[i, j] < data[iteration].pMin) { data[iteration].pMin = data[iteration].p[i, j]; }
             }
         }
 
