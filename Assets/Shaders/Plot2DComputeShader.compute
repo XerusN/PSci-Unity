@@ -24,7 +24,7 @@ RWStructuredBuffer<float> colors;
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
     
-    if (id.x >= meshResolutionX | id.y >= meshResolutionY)
+    if (id.x >= (uint) meshResolutionX | id.y >= (uint) meshResolutionY)
         return;
     
     int i = id.x + id.y * meshResolutionX;
