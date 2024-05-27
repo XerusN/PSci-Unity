@@ -23,19 +23,24 @@ public class VisualizerManager : MonoBehaviour
 
     }
 
-    IEnumerator RunAnimatedPlot(int iterationIni, int plotedValue, float min, float max)
+    public IEnumerator RunAnimatedPlot(int iterationIni, int iterationMax, int plotedValue, float min, float max)
     {
-        data.InitData(432);
+        data.InitData(iterationMax);
         for (int i  = 0; i < data.data.Length; i++)
         {
             data.ReadDataTechplot(i);
         }
 
-        for (int i = iterationIni; i < 432; i++)
+        float time = 0f;
+        float dTime = 0f;
+
+        for (int i = 0; i < data.data.Length; i++)
         {
             UpdatePlot(data, i, plotedValue, min, max);
-            Debug.Log(i);
-            yield return new WaitForSeconds(0.01f);
+            Debug.Log(i.ToString() + " " + data.data[i].time.ToString());
+            dTime = data.data[i].time - time;
+            time = data.data[i].time;
+            yield return new WaitForSeconds(dTime);
         }
         Debug.Log("Fini!");
     }
