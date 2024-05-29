@@ -4,7 +4,7 @@ using UnityEngine;
 
 [CreateAssetMenu]
 
-public class Input : ScriptableObject
+public class CustomInput : ScriptableObject
 {
 
     [Header("Grid")]
@@ -31,5 +31,11 @@ public class Input : ScriptableObject
     public float[] vSides = { 0.0f, 0.0f, 0.0f, 0.0f };
     public float uIni = 0.0f;
     public float vIni = 0.0f;
+
+    [Header("Solid")]
+    public float[,] poly = { { 1.0f, 0.0f, 1.0f, 0.0f, 0.02f }, { 0.0f, 0.0f, 0.0f, 0.0f, 1.0f } };
+    public Vector2 refPointPoly = new Vector2(0.5f, 0.5f);
+    public float[,] square = { { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } };
+    public Vector2 refPointSquare = new Vector2(0.5f, 0.5f);
 
 }

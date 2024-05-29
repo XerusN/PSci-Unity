@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class Data : MonoBehaviour
 {
-    public Input input;
+    public CustomInput input;
 
     public struct DataValue
     {
@@ -93,7 +93,6 @@ public class Data : MonoBehaviour
             }
         }
 
-
         for (int j = 0; j < data[iteration].n.y + 2; j++)
         {
             data[iteration].x[0, j] = data[iteration].x[1, j];
@@ -109,6 +108,7 @@ public class Data : MonoBehaviour
             data[iteration].p[0, j] = data[iteration].p[1, j];
             data[iteration].p[data[iteration].n.x + 1, j] = data[iteration].p[data[iteration].n.x, j];
         }
+
         for (i = 0; i < data[iteration].n.x + 2; i++)
         {
             data[iteration].x[i, 0] = data[iteration].x[i, 1];

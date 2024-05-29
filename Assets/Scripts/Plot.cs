@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Plot : MonoBehaviour
@@ -134,14 +135,14 @@ public class Plot : MonoBehaviour
         if (vertexBuffer == null)
         {
             AllocateBuffer(data, iteration);
-            Debug.Log("Allocated mesh");
+            //Debug.Log("Allocated mesh");
         }
 
         if ((data.data[iteration].n.x*data.data[iteration].n.y != valueFlat.Length) | meshResolution.x*meshResolution.y != vertices.Length)
         {
             ReleaseBuffer();
             AllocateBuffer(data, iteration);
-            Debug.Log("Resized mesh");
+            //Debug.Log("Resized mesh");
         }
 
         for (int i = 0; i < data.data[iteration].n.x; i++)
@@ -151,16 +152,6 @@ public class Plot : MonoBehaviour
                 xFlat[i + data.data[iteration].n.x * j] = data.data[iteration].x[i, j];
                 yFlat[i + data.data[iteration].n.x * j] = data.data[iteration].y[i, j];
                 valueFlat[i + data.data[iteration].n.x * j] = plotedValue[i, j];
-            }
-        }
-
-        for (int i = 0; i < data.data[iteration].n.x; i++)
-        {
-            for (int j = 0; j < data.data[iteration].n.y; j++)
-            {
-                xFlat[i + data.data[iteration].n.x * j] = data.data[iteration].x[i, j];
-                yFlat[i + data.data[iteration].n.x * j] = data.data[iteration].y[i, j];
-                valueFlat[i + data.data[iteration].n.x * j] = data.data[iteration].u[i, j];
             }
         }
 
@@ -268,11 +259,5 @@ public class Plot : MonoBehaviour
             ReleaseBuffer();
         }
     }
-
-
-
-
-
-
 
 }
