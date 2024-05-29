@@ -37,3 +37,5 @@ MonoBehaviour:
   - 0
   uIni: 0
   vIni: 0
+  refPointPoly: {x: 0.5, y: 0.5}
+  refPointSquare: {x: 0.5, y: 0.5}
