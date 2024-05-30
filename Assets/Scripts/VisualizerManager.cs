@@ -20,8 +20,6 @@ public class VisualizerManager : MonoBehaviour
     {
         data = this.gameObject.GetComponent<Data>();
         plot = this.gameObject.GetComponent<Plot>();
-        //StartCoroutine(RunAnimatedPlot(0, 1, -1f, 1f));
-        //UpdatePlot(data, 432, 1, -1f, 1f);
     }
 
     // Update is called once per frame
@@ -57,12 +55,10 @@ public class VisualizerManager : MonoBehaviour
         {
             currentIteration = i;
             UpdatePlot(i, plotedValue, valueMin, valueMax);
-            Debug.Log(i.ToString() + " " + data.data[i].time.ToString());
             dTime = data.data[i].time - time;
             time = data.data[i].time;
             yield return new WaitForSeconds(dTime);
         }
-        Debug.Log("Fini!");
     }
 
     public void UpdatePlot(int iteration, int plotedValue, float min, float max)

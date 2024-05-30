@@ -285,6 +285,7 @@ public class InputUIManager : MonoBehaviour
     public void ToggleCustom(bool value)
     {
         input.custom = value;
+        customMenu.SetActive(value);
     }
 
     public void InputULeft(string valueStr)
@@ -566,4 +567,5 @@ public class InputUIManager : MonoBehaviour
     {
         isSelected = false;
     }
+
 }

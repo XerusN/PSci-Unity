@@ -19,6 +19,9 @@ public class UIManager : MonoBehaviour
     public GameObject minInput;
     public GameObject maxInput;
     public GameObject iterationInput;
+    public GameObject timeText;
+
+    public GameObject simulationManager;
 
     private Boolean isSelected;
 
@@ -31,11 +34,15 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        if (visualizerUI.activeSelf && !isSelected)
+        if (visualizerUI.activeSelf)
         {
-            minInput.GetComponent<TMP_InputField>().text = visualizerManager.valueMin.ToString();
-            maxInput.GetComponent<TMP_InputField>().text = visualizerManager.valueMax.ToString();
-            iterationInput.GetComponent<TMP_InputField>().text = visualizerManager.currentIteration.ToString();
+            if (!isSelected)
+            {
+                minInput.GetComponent<TMP_InputField>().text = visualizerManager.valueMin.ToString();
+                maxInput.GetComponent<TMP_InputField>().text = visualizerManager.valueMax.ToString();
+                iterationInput.GetComponent<TMP_InputField>().text = visualizerManager.currentIteration.ToString();
+            }
+            timeText.GetComponent<TMP_Text>().text = "Time = " + visualizerManager.data.data[visualizerManager.currentIteration].time.ToString() + " s";
         }
     }
 
@@ -108,5 +115,12 @@ public class UIManager : MonoBehaviour
     {
         mainMenu.SetActive(false);
         inputMenu.SetActive(true);
+    }
+
+    public void BackInputButton()
+    {
+        mainMenu.SetActive(true);
+        inputMenu.SetActive(false);
+        simulationManager.GetComponent<CreateInput>().WriteInputFile();
     }
 }

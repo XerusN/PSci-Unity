@@ -17,7 +17,7 @@ public class CreateInput : MonoBehaviour
         //WriteInputFile();
     }
 
-    void WriteInputFile()
+    public void WriteInputFile()
     {
         StreamWriter writer = new StreamWriter(mainManager.cfdCodePath + "/input.dat", false);
 
