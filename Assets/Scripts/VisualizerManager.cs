@@ -164,7 +164,6 @@ public class VisualizerManager : MonoBehaviour
     {
         StopAllCoroutines();
         currentPlotedValue = plotedValue + 1;
-        Debug.Log(currentPlotedValue);
         UpdatePlot(currentIteration, currentPlotedValue, valueMin, valueMax);
     }
 }

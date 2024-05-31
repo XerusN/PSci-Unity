@@ -26,7 +26,7 @@ public class UIManager : MonoBehaviour
     private Boolean isSelected;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         mainManager = GameObject.Find("Main Manager").GetComponent<MainManager>();
         visualizerManager = GameObject.Find("Visualizer").GetComponent<VisualizerManager>();
@@ -36,26 +36,33 @@ public class UIManager : MonoBehaviour
     {
         if (visualizerUI.activeSelf)
         {
+            if (visualizerManager == null) {
+                Debug.Log("no visualizer found");
+            }
+
             if (!isSelected)
             {
                 minInput.GetComponent<TMP_InputField>().text = visualizerManager.valueMin.ToString();
                 maxInput.GetComponent<TMP_InputField>().text = visualizerManager.valueMax.ToString();
                 iterationInput.GetComponent<TMP_InputField>().text = visualizerManager.currentIteration.ToString();
             }
-            timeText.GetComponent<TMP_Text>().text = "Time = " + visualizerManager.data.data[visualizerManager.currentIteration].time.ToString() + " s";
+            if (visualizerManager.data.data.Length == 0) {
+                Debug.Log("no data");
+            }
+            //timeText.GetComponent<TMP_Text>().text = "Time = " + visualizerManager.data.data[visualizerManager.currentIteration].time.ToString() + " s";
         }
     }
 
     public void UpdatePath(string path)
     {
-        mainManager.cfdCodePath = path;
+        mainManager.cfdCodePath = path.Trim();
     }
 
     public void StartPlot()
     {
         mainMenu.SetActive(false);
-        visualizerUI.SetActive(true);
         visualizerManager.InitVisualizer();
+        visualizerUI.SetActive(true);
         //StartCoroutine(visualizerManager.RunAnimatedPlot(0, 1, -1f, 0.5f));
     }
 
