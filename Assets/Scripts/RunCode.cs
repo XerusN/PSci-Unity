@@ -14,6 +14,10 @@ public class RunCode : MonoBehaviour
 
     string oldDirectory;
 
+    public float t;
+    public float dt;
+    public GameObject runUI;
+
     void Awake()
     {
         mainManager = GameObject.Find("Main Manager").GetComponent<MainManager>();
@@ -27,11 +31,14 @@ public class RunCode : MonoBehaviour
     
     Process process = null;
     private Thread outputThread;
+    public Boolean cfdCodeRunning = false;
+
 
 
     public void StartProcess()
     {
-
+        runUI.SetActive(true);
+        cfdCodeRunning = true;
 
         try
         {
@@ -64,6 +71,7 @@ public class RunCode : MonoBehaviour
             outputThread = new Thread(ReadOutput);
             outputThread.Start();
 
+            //StartCoroutine(cfdCodeExit());
 
             ////process.BeginOutputReadLine();
             ////messageStream = process.StandardInput;
@@ -95,7 +103,22 @@ public class RunCode : MonoBehaviour
         StreamReader reader = process.StandardOutput;
         while(!reader.EndOfStream && !process.HasExited)
         {
-            UnityEngine.Debug.Log(reader.ReadLine());
+            string line = reader.ReadLine().Trim();
+            UnityEngine.Debug.Log(line);
+            if (line[0] == 't' && line[2] == '=')
+            {
+                float.TryParse(line[3..], out t);
+            }
+            else if (line[0] == 'd')
+            {
+                float.TryParse(line[4..], out dt);
+            }
+            else if (line.Substring(0, 5) == "temps")
+            {
+                process.Kill();
+                cfdCodeRunning = false;
+            }
+
         }
 
         StreamReader errorReader = process.StandardError;
@@ -103,6 +126,7 @@ public class RunCode : MonoBehaviour
         {
             UnityEngine.Debug.Log(errorReader.ReadLine());
         }
+
     }
 
     void OnApplicationQuit()
@@ -112,5 +136,12 @@ public class RunCode : MonoBehaviour
             process.Kill();
         }
     }
+
+    public void StopProcess()
+    {
+        process.Kill();
+        cfdCodeRunning = false;
+    }
+
 }
 

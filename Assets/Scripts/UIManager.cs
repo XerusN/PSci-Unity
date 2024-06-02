@@ -22,6 +22,12 @@ public class UIManager : MonoBehaviour
     public GameObject timeText;
 
     public GameObject simulationManager;
+    public CustomInput input;
+
+    public GameObject runUI;
+    public GameObject runTime;
+    public GameObject runDtime;
+    public GameObject runSlider;
 
     private Boolean isSelected;
 
@@ -39,7 +45,6 @@ public class UIManager : MonoBehaviour
             if (visualizerManager == null) {
                 Debug.Log("no visualizer found");
             }
-
             if (!isSelected)
             {
                 minInput.GetComponent<TMP_InputField>().text = visualizerManager.valueMin.ToString();
@@ -49,7 +54,13 @@ public class UIManager : MonoBehaviour
             if (visualizerManager.data.data.Length == 0) {
                 Debug.Log("no data");
             }
-            //timeText.GetComponent<TMP_Text>().text = "Time = " + visualizerManager.data.data[visualizerManager.currentIteration].time.ToString() + " s";
+            timeText.GetComponent<TMP_Text>().text = "Time = " + visualizerManager.data.data[visualizerManager.currentIteration].time.ToString() + " s";
+        }
+        if (runUI.activeSelf && simulationManager.GetComponent<RunCode>().cfdCodeRunning)
+        {
+            runTime.GetComponent<TMP_Text>().text = "t = " + simulationManager.GetComponent<RunCode>().t.ToString() + " s";
+            runDtime.GetComponent<TMP_Text>().text = "dt = " + simulationManager.GetComponent<RunCode>().dt.ToString() + " s";
+            runSlider.GetComponent<Slider>().value = simulationManager.GetComponent<RunCode>().t / input.tf;
         }
     }
 
@@ -63,7 +74,6 @@ public class UIManager : MonoBehaviour
         mainMenu.SetActive(false);
         visualizerManager.InitVisualizer();
         visualizerUI.SetActive(true);
-        //StartCoroutine(visualizerManager.RunAnimatedPlot(0, 1, -1f, 0.5f));
     }
 
     public void UpdateIteration(String valueStr)
@@ -120,8 +130,11 @@ public class UIManager : MonoBehaviour
 
     public void InputButton()
     {
-        mainMenu.SetActive(false);
-        inputMenu.SetActive(true);
+        if (!runUI.activeSelf && simulationManager.GetComponent<RunCode>().cfdCodeRunning)
+        {
+            mainMenu.SetActive(false);
+            inputMenu.SetActive(true);
+        }
     }
 
     public void BackInputButton()
@@ -130,4 +143,17 @@ public class UIManager : MonoBehaviour
         inputMenu.SetActive(false);
         simulationManager.GetComponent<CreateInput>().WriteInputFile();
     }
+
+    public void BackVisualizerButton()
+    {
+        visualizerManager.StopAllCoroutines();
+        visualizerUI.SetActive(false);
+        mainMenu.SetActive(true);
+    }
+
+    public void ExitButton()
+    {
+        Application.Quit();
+    }
+
 }
