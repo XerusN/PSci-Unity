@@ -27,12 +27,20 @@ public class RunCode : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (process != null)
+        {
+            if (process.HasExited)
+            {
+                cfdCodeRunning = false;
+            }
+            
+        }
     }
     
     Process process = null;
     private Thread outputThread;
     public Boolean cfdCodeRunning = false;
+    public CustomInput input;
 
 
 
@@ -118,7 +126,7 @@ public class RunCode : MonoBehaviour
             {
                 float.TryParse(line[4..], out dt);
             }
-            else if (line.Substring(0, 5) == "temps")
+            else if (line.Substring(0, 5) == "temps" | process.HasExited)
             {
                 process.Kill();
                 cfdCodeRunning = false;

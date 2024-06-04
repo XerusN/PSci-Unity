@@ -47,7 +47,7 @@ public class UIManager : MonoBehaviour
         if (visualizerUI.activeSelf)
         {
             if (visualizerManager == null) {
-                Debug.Log("no visualizer found");
+                Debug.LogError("no visualizer found");
             }
             if (!isSelected)
             {
