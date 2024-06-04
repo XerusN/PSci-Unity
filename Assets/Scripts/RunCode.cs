@@ -17,6 +17,7 @@ public class RunCode : MonoBehaviour
     public float t;
     public float dt;
     public GameObject runUI;
+    public GameObject stopButton;
 
     void Awake()
     {
@@ -35,9 +36,12 @@ public class RunCode : MonoBehaviour
 
 
 
+
     public void StartProcess()
     {
         runUI.SetActive(true);
+        stopButton.SetActive(true);
+
         cfdCodeRunning = true;
 
         try
@@ -119,7 +123,6 @@ public class RunCode : MonoBehaviour
                 process.Kill();
                 cfdCodeRunning = false;
             }
-
         }
 
         StreamReader errorReader = process.StandardError;

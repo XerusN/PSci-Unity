@@ -30,6 +30,8 @@ public class UIManager : MonoBehaviour
     public GameObject runTime;
     public GameObject runDtime;
     public GameObject runSlider;
+    public GameObject stopButton;
+
 
     private Boolean isSelected;
 
@@ -58,11 +60,19 @@ public class UIManager : MonoBehaviour
             }
             timeText.GetComponent<TMP_Text>().text = "Time = " + visualizerManager.data.data[visualizerManager.currentIteration].time.ToString() + " s";
         }
-        if (runUI.activeSelf && simulationManager.GetComponent<RunCode>().cfdCodeRunning)
+        if (runUI.activeSelf)
         {
-            runTime.GetComponent<TMP_Text>().text = "t = " + simulationManager.GetComponent<RunCode>().t.ToString() + " s";
-            runDtime.GetComponent<TMP_Text>().text = "dt = " + simulationManager.GetComponent<RunCode>().dt.ToString() + " s";
-            runSlider.GetComponent<Slider>().value = simulationManager.GetComponent<RunCode>().t / input.tf;
+            if (simulationManager.GetComponent<RunCode>().cfdCodeRunning)
+            {
+                runTime.GetComponent<TMP_Text>().text = "t = " + simulationManager.GetComponent<RunCode>().t.ToString() + " s";
+                runDtime.GetComponent<TMP_Text>().text = "dt = " + simulationManager.GetComponent<RunCode>().dt.ToString() + " s";
+                runSlider.GetComponent<Slider>().value = simulationManager.GetComponent<RunCode>().t / input.tf;
+            }
+            else
+            {
+                stopButton.SetActive(false);
+            }
+        
         }
     }
 
