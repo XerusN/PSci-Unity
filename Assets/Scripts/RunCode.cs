@@ -49,15 +49,17 @@ public class RunCode : MonoBehaviour
             process = new Process();
             process.EnableRaisingEvents = false;
             //process.StartInfo.FileName = Application.dataPath + "/home/xaviern/Documents/VSCode/Test";
-#if Windows
+
+#if UNITY_STANDALONE_WIN
             process.StartInfo.FileName = "a.exe";
 #elif UNITY_EDITOR_WIN
             process.StartInfo.FileName = "a.exe";
-#elif Linux
-            process.StartInfo.FileName = "a.out";
 #elif UNITY_EDITOR_LINUX
             process.StartInfo.FileName = "a.out";
+#else
+            process.StartInfo.FileName = "a.out";
 #endif
+
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardInput = true;
@@ -66,7 +68,6 @@ public class RunCode : MonoBehaviour
             process.Start();
 
             System.IO.Directory.SetCurrentDirectory(oldDirectory);
-
 
             outputThread = new Thread(ReadOutput);
             outputThread.Start();
@@ -104,7 +105,7 @@ public class RunCode : MonoBehaviour
         while(!reader.EndOfStream && !process.HasExited)
         {
             string line = reader.ReadLine().Trim();
-            UnityEngine.Debug.Log(line);
+            //UnityEngine.Debug.Log(line);
             if (line[0] == 't' && line[2] == '=')
             {
                 float.TryParse(line[3..], out t);

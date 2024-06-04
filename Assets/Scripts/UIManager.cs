@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,7 @@ public class UIManager : MonoBehaviour
     public GameObject mainMenu;
     public GameObject visualizerUI;
     public GameObject inputMenu;
+    public GameObject helpMenu;
 
     public GameObject minInput;
     public GameObject maxInput;
@@ -130,7 +132,7 @@ public class UIManager : MonoBehaviour
 
     public void InputButton()
     {
-        if (!runUI.activeSelf && simulationManager.GetComponent<RunCode>().cfdCodeRunning)
+        if (!simulationManager.GetComponent<RunCode>().cfdCodeRunning)
         {
             mainMenu.SetActive(false);
             inputMenu.SetActive(true);
@@ -153,7 +155,30 @@ public class UIManager : MonoBehaviour
 
     public void ExitButton()
     {
+#if UNITY_EDITOR
+        EditorApplication.ExitPlaymode();
+#else
         Application.Quit();
+#endif
     }
 
+    public void OpenHelp()
+    {
+        helpMenu.SetActive(true);
+    }
+
+    public void CloseHelp()
+    {
+        helpMenu.SetActive(false);
+    }
+
+    public void PsciGithub()
+    {
+        Application.OpenURL("https://github.com/XerusN/PSci");
+    }
+
+    public void ThisGithub()
+    {
+        Application.OpenURL("https://github.com/XerusN/PSci-Unity");
+    }
 }
