@@ -26,6 +26,11 @@ public class Plot : MonoBehaviour
     float[] yFlat;
     float[] valueFlat;
 
+    public GameObject vectorPrefab;
+    private GameObject[] vectors;
+    public Vector2Int numberOfVectors = new Vector2Int(50, 50);
+    public float vectorScale = 0.01f;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -200,10 +205,14 @@ public class Plot : MonoBehaviour
         mesh.colors = colors;
 
         mesh.RecalculateNormals();
+        PlotVectors(data, iteration);
+
     }
 
     void AllocateBuffer(Data data, int iteration)
     {
+        InstantiateVectors(data);
+
         vertices = new Vector3[meshResolution.x * meshResolution.y];
         triangles = new int[(meshResolution.x - 1) * (meshResolution.y - 1) * 2 * 3];
         colors = new Color[vertices.Length];
@@ -240,6 +249,7 @@ public class Plot : MonoBehaviour
         valueBuffer = new ComputeBuffer(valueFlat.Length, sizeof(float));
 
         //triangleBuffer = new ComputeBuffer(triangles.Length, sizeof(int));
+
     }
 
     void ReleaseBuffer()
@@ -257,6 +267,73 @@ public class Plot : MonoBehaviour
         if (vertexBuffer != null)
         {
             ReleaseBuffer();
+        }
+    }
+
+    private void PlotVectors(Data data, int iteration)
+    {
+        int k = 0;
+        int l = 0;
+        for (int i = 0; i < vectors.Length; i++)
+        {
+            k = 0;
+            l = 0;
+            while ((k + 1 < data.data[iteration].n.x))
+            {
+                if ((data.data[iteration].x[k, 0] <= vectors[i].transform.position.x) & (data.data[iteration].x[k + 1, 0] >= vectors[i].transform.position.x)) { break; }
+                k++;
+            }
+            while ((l + 1 < data.data[iteration].n.y))
+            {
+                if ((data.data[iteration].y[0, l] <= vectors[i].transform.position.y) & (data.data[iteration].y[0, l + 1] >= vectors[i].transform.position.y)) { break; }
+                l++;
+            }
+            float t = 0f;
+            if (Mathd.Abs(data.data[iteration].x[k + 1, l] - data.data[iteration].x[k, l]) > 0)
+            {
+                t = (vectors[i].transform.position.x - data.data[iteration].x[k, l]) / (data.data[iteration].x[k + 1, l] - data.data[iteration].x[k, l]);
+            }
+
+            float u1 = (float)Mathd.Lerp(data.data[iteration].u[k, l], data.data[iteration].u[k + 1, l], t);
+
+            float u2 = (float)Mathd.Lerp(data.data[iteration].u[k, l + 1], data.data[iteration].u[k + 1, l + 1], t);
+
+            float v1 = (float)Mathd.Lerp(data.data[iteration].v[k, l], data.data[iteration].v[k + 1, l], t);
+
+            float v2 = (float)Mathd.Lerp(data.data[iteration].v[k, l + 1], data.data[iteration].v[k + 1, l + 1], t);
+
+            if (Mathd.Abs(data.data[iteration].y[k, l + 1] - data.data[iteration].y[k, l]) > 0)
+            {
+                t = (vectors[i].transform.position.y - data.data[iteration].y[k, l]) / (data.data[iteration].y[k, l + 1] - data.data[iteration].y[k, l]);
+            }
+            else
+            {
+                t = 0f;
+            }
+
+            float u = (float)Mathd.Lerp(u1, u2, t);
+
+            float v = (float)Mathd.Lerp(v1, v2, t);
+
+            Vector3 uv = new Vector3(u, v, 0f);
+
+            vectors[i].transform.eulerAngles = new Vector3(0f, 0f, Vector3.SignedAngle(uv, Vector3.right, Vector3.back));
+
+            vectors[i].transform.localScale = new Vector3(uv.magnitude * vectorScale, uv.magnitude * vectorScale, 1f);
+        }
+    }
+
+    void InstantiateVectors(Data data)
+    {
+        vectors = new GameObject[numberOfVectors.x * numberOfVectors.y];
+
+        for (int i = 0; i < numberOfVectors.x; i++)
+        {
+            for (int j = 0; j < numberOfVectors.y; j++)
+            {
+                vectors[i + j * numberOfVectors.x] = GameObject.Instantiate(vectorPrefab, this.transform);
+                vectors[i + j * numberOfVectors.x].transform.position = new Vector3((float)i / (float)(numberOfVectors.x-1) * data.data[0].xMax, (float)j / (float)(numberOfVectors.y-1) * data.data[0].yMax, -1f);
+            }
         }
     }
 

@@ -88,7 +88,8 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     
     color = (float) (t * (color2 - color1) + color1);
     
-    vertex.z = -color;
+    //enables the plot to be in 3D, the height reprensenting the value
+    //vertex.z = -color;
     
     vertices[i] = vertex;
     colors[i] = color;
