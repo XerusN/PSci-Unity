@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
+using System.Linq;
 
 
 
@@ -18,6 +19,8 @@ public class RunCode : MonoBehaviour
     public float dt;
     public GameObject runUI;
     public GameObject stopButton;
+    public int[] iterations;
+    public float[] integrals;
 
     void Awake()
     {
@@ -51,6 +54,9 @@ public class RunCode : MonoBehaviour
         stopButton.SetActive(true);
 
         cfdCodeRunning = true;
+
+        iterations = new int[0];
+        integrals = new float[0];
 
         try
         {
@@ -130,6 +136,22 @@ public class RunCode : MonoBehaviour
             {
                 process.Kill();
                 cfdCodeRunning = false;
+            }
+            else if (line[0] != '-')
+            {
+                int index1 = line.IndexOf(':');
+                if (index1 < 0) { continue; }
+                int index2 = line.IndexOf("i", index1);
+                if (index2 < 0) { continue; }
+                int iteration;
+                int.TryParse(line[(index1+1)..(index2-1)], out iteration);
+                iterations.Append(iteration);
+
+                index1 = line.IndexOf('=');
+                if (index1 < 0) { continue; }
+                float integral;
+                float.TryParse(line[(index1+1)..], out integral);
+                integrals.Append(integral);
             }
         }
 

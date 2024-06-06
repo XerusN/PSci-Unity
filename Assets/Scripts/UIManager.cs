@@ -22,6 +22,7 @@ public class UIManager : MonoBehaviour
     public GameObject maxInput;
     public GameObject iterationInput;
     public GameObject timeText;
+    public GameObject showVectorsUI;
 
     public GameObject simulationManager;
     public CustomInput input;
@@ -32,6 +33,8 @@ public class UIManager : MonoBehaviour
     public GameObject runSlider;
     public GameObject stopButton;
 
+    public GameObject plotIterations;
+
 
     private Boolean isSelected;
 
@@ -40,15 +43,16 @@ public class UIManager : MonoBehaviour
     {
         mainManager = GameObject.Find("Main Manager").GetComponent<MainManager>();
         visualizerManager = GameObject.Find("Visualizer").GetComponent<VisualizerManager>();
+        if (visualizerManager == null)
+        {
+            Debug.LogError("no visualizer found");
+        }
     }
 
     private void Update()
     {
         if (visualizerUI.activeSelf)
         {
-            if (visualizerManager == null) {
-                Debug.LogError("no visualizer found");
-            }
             if (!isSelected)
             {
                 minInput.GetComponent<TMP_InputField>().text = visualizerManager.valueMin.ToString();
@@ -71,6 +75,7 @@ public class UIManager : MonoBehaviour
             else
             {
                 stopButton.SetActive(false);
+                plotIterations.GetComponent<PlotIterations>().UpdateIterationPlot();
             }
         
         }
@@ -191,4 +196,6 @@ public class UIManager : MonoBehaviour
     {
         Application.OpenURL("https://github.com/XerusN/PSci-Unity");
     }
+
+    
 }

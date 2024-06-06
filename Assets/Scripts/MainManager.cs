@@ -8,8 +8,6 @@ public class MainManager : MonoBehaviour
 
     public string cfdCodePath;
 
-
-
     // Start is called before the first frame update
     void Start()
     {

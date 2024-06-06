@@ -15,6 +15,8 @@ public class VisualizerManager : MonoBehaviour
     public float valueMin = -1f;
     public float valueMax = 1f;
 
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -164,6 +166,12 @@ public class VisualizerManager : MonoBehaviour
     {
         StopAllCoroutines();
         currentPlotedValue = plotedValue + 1;
+        UpdatePlot(currentIteration, currentPlotedValue, valueMin, valueMax);
+    }
+
+    public void UpdateShowVectors(Boolean value)
+    {
+        plot.showVectors = value;
         UpdatePlot(currentIteration, currentPlotedValue, valueMin, valueMax);
     }
 }

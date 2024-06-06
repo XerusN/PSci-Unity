@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -30,6 +31,8 @@ public class Plot : MonoBehaviour
     private GameObject[] vectors;
     public Vector2Int numberOfVectors = new Vector2Int(50, 50);
     public float vectorScale = 0.01f;
+
+    public Boolean showVectors = false;
 
     // Start is called before the first frame update
     void Awake()
@@ -205,7 +208,17 @@ public class Plot : MonoBehaviour
         mesh.colors = colors;
 
         mesh.RecalculateNormals();
-        PlotVectors(data, iteration);
+
+        if (showVectors)
+        {
+            PlotVectors(data, iteration);
+        } else
+        {
+            for (int i = 0; i > vectors.Length; i++)
+            {
+                vectors[i].SetActive(false);
+            }
+        }
 
     }
 
@@ -317,9 +330,10 @@ public class Plot : MonoBehaviour
 
             Vector3 uv = new Vector3(u, v, 0f);
 
-            vectors[i].transform.eulerAngles = new Vector3(0f, 0f, Vector3.SignedAngle(uv, Vector3.right, Vector3.back));
+            vectors[i].transform.eulerAngles = new Vector3(0f, 0f, Vector3.SignedAngle(uv, Vector3.up, Vector3.back));
 
             vectors[i].transform.localScale = new Vector3(uv.magnitude * vectorScale, uv.magnitude * vectorScale, 1f);
+            vectors[i].SetActive(true);
         }
     }
 
@@ -333,6 +347,7 @@ public class Plot : MonoBehaviour
             {
                 vectors[i + j * numberOfVectors.x] = GameObject.Instantiate(vectorPrefab, this.transform);
                 vectors[i + j * numberOfVectors.x].transform.position = new Vector3((float)i / (float)(numberOfVectors.x-1) * data.data[0].xMax, (float)j / (float)(numberOfVectors.y-1) * data.data[0].yMax, -1f);
+                vectors[i + j * numberOfVectors.x].SetActive(false);
             }
         }
     }
