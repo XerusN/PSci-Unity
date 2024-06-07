@@ -33,7 +33,11 @@ public class UIManager : MonoBehaviour
     public GameObject runSlider;
     public GameObject stopButton;
 
-    public GameObject plotIterations;
+    //public GameObject plotIterations;
+    //public GameObject plotIntegrals;
+    public GameObject runIterationInfoText;
+    public GameObject runLengthInfoText;
+
 
 
     private Boolean isSelected;
@@ -75,7 +79,11 @@ public class UIManager : MonoBehaviour
             else
             {
                 stopButton.SetActive(false);
-                plotIterations.GetComponent<PlotIterations>().UpdateIterationPlot();
+                //plotIterations.GetComponent<PlotIterations>().UpdateIterationPlot();
+                //plotIntegrals.GetComponent<PlotIntegral>().UpdateIntegralPlot();
+                simulationManager.GetComponent<ComputeStats>().ComputeIterationStats();
+                runIterationInfoText.GetComponent<TMP_Text>().text = simulationManager.GetComponent<ComputeStats>().meanIteration.ToString() + " | " + simulationManager.GetComponent<ComputeStats>().maxIteration.ToString() + " | " + simulationManager.GetComponent<ComputeStats>().minIteration.ToString();
+                runLengthInfoText.GetComponent<TMP_Text>().text = simulationManager.GetComponent<RunCode>().iterations.Count.ToString();
             }
         
         }

@@ -19,8 +19,8 @@ public class RunCode : MonoBehaviour
     public float dt;
     public GameObject runUI;
     public GameObject stopButton;
-    public int[] iterations;
-    public float[] integrals;
+    public List<int> iterations;
+    public List<float> integrals;
 
     void Awake()
     {
@@ -36,7 +36,6 @@ public class RunCode : MonoBehaviour
             {
                 cfdCodeRunning = false;
             }
-            
         }
     }
     
@@ -55,8 +54,8 @@ public class RunCode : MonoBehaviour
 
         cfdCodeRunning = true;
 
-        iterations = new int[0];
-        integrals = new float[0];
+        iterations = new List<int>();
+        integrals = new List<float>();
 
         try
         {
@@ -145,13 +144,13 @@ public class RunCode : MonoBehaviour
                 if (index2 < 0) { continue; }
                 int iteration;
                 int.TryParse(line[(index1+1)..(index2-1)], out iteration);
-                iterations.Append(iteration);
+                iterations.Add(iteration);
 
                 index1 = line.IndexOf('=');
                 if (index1 < 0) { continue; }
                 float integral;
                 float.TryParse(line[(index1+1)..], out integral);
-                integrals.Append(integral);
+                integrals.Add(integral);
             }
         }
 
