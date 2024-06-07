@@ -214,7 +214,7 @@ public class Plot : MonoBehaviour
             PlotVectors(data, iteration);
         } else
         {
-            for (int i = 0; i > vectors.Length; i++)
+            for (int i = 0; i < vectors.Length; i++)
             {
                 vectors[i].SetActive(false);
             }
